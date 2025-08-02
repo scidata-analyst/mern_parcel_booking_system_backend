@@ -84,7 +84,7 @@ router.put("/update-profile/:id", auth, async (req, res) => {
 
 /* verify token */
 router.get('/verify-token', auth, (req, res) => {
-    res.status(200).json({ message: 'Token is valid', user: req.user });
+    res.status(200).json({ message: 'okay', user: req.user });
 });
 
 
