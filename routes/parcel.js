@@ -7,10 +7,18 @@ const Parcel = require("../models/Parcel");
 /* get all parcels */
 router.get("/parcels", auth, async (req, res) => {
     try {
-        const parcels = await Parcel.find();
+        const parcels = await Parcel.find()
+            .populate("user_details", "-password -__v")
+            .populate({
+                path: "history",
+                populate: [
+                    { path: "user", select: "-password -__v" },
+                    { path: "agent", select: "-password -__v" }
+                ]
+            });
         res.status(200).send(parcels);
     } catch (e) {
-        res.status(400).send(e);
+        res.status(400).send(e.message);
     }
 });
 

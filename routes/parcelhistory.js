@@ -6,10 +6,16 @@ const ParcelHistory = require("../models/ParcelHistory");
 /* get all parcel histories */
 router.get("/parcelhistories", auth, async (req, res) => {
     try {
-        const parcelhistories = await ParcelHistory.find();
-        res.status(200).send(parcelhistories);
-    } catch (e) {
-        res.status(400).send(e);
+        const history = await ParcelHistory.find()
+            .populate("parcel_id")
+            .populate("user_id")
+            .populate("agent_id")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json(history);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch parcel history" });
     }
 });
 
@@ -27,13 +33,14 @@ router.get("/parcelhistory/:id", auth, async (req, res) => {
 /* add a new parcel history */
 router.post("/add", auth, async (req, res) => {
     const { parcel_id, user_id, status, amount, delivery_date, assigned_date, sender, receiver, longitude, latitude } = req.body;
-
     const existingParcelHistory = await ParcelHistory.findOne({ parcel_id });
+    
     if (existingParcelHistory) {
         return res.status(400).send({ message: "Parcel history already exists" });
     }
 
     const parcelhistory = new ParcelHistory({ parcel_id, user_id, status, amount, delivery_date, assigned_date, sender, receiver, longitude, latitude });
+    
     try {
         await parcelhistory.save();
         res.status(201).send({ parcelhistory: parcelhistory._id });
@@ -64,6 +71,23 @@ router.delete("/delete-parcelhistory/:id", auth, async (req, res) => {
     try {
         const { id } = req.params;
         const parcelhistory = await ParcelHistory.findByIdAndDelete(id);
+        res.status(200).send(parcelhistory);
+    } catch (e) {
+        res.status(400).send(e);
+    }
+});
+
+/* assign agent */
+router.put("/assign-agent/:id", auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { agent_id } = req.body;
+
+        const parcelhistory = await ParcelHistory.findById(id);
+        parcelhistory.agent_id = agent_id;  
+
+        await parcelhistory.save();
+        
         res.status(200).send(parcelhistory);
     } catch (e) {
         res.status(400).send(e);

@@ -26,5 +26,14 @@ const parcelSchema = new Schema({
     timestamps: true
 });
 
-const Parcel = mongoose.model("parcel", parcelSchema);
-module.exports = Parcel;
+parcelSchema.virtual("history", {
+    ref: "parcel_history",
+    localField: "_id",
+    foreignField: "parcel_id",
+    justOne: false
+});
+
+parcelSchema.set("toObject", { virtuals: true });
+parcelSchema.set("toJSON", { virtuals: true });
+
+module.exports = mongoose.model("parcel", parcelSchema);
