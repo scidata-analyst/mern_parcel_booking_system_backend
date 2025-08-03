@@ -16,6 +16,8 @@ mongoose.connect(process.env.MONGODB_URI)
 
 /* routes setup */
 const userRoute = require("./routes/user");
+const parcelRoute = require("./routes/parcel");
+const parcelHistoryRoute = require("./routes/parcelhistory");
 
 /* app setup */
 const app = express();
@@ -28,6 +30,8 @@ app.use(express.static(path.join(__dirname, "uploads")));
 
 /* routes setup */
 app.use("/api/user", userRoute);
+app.use("/api/parcel", parcelRoute);
+app.use("/api/parcelhistory", parcelHistoryRoute);
 
 /* server setup */
 const port = process.env.PORT || 5000;
